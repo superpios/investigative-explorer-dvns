@@ -20,7 +20,10 @@ Permette di partire da una persona, una società, un CIG, un CUP o un ente pubbl
 
 ## Stato del progetto
 
-Fase 0 — preparazione. Struttura del repository definita, estrazioni non ancora avviate.
+**Fase 1 in corso** — prime relazioni estratte dal corpus DVNS e pubblicate:
+
+- `affidamenti-diretti`: 6.506 righe sorgente → **6.484 relazioni CIG→ente** in `data/relations/` (CSV + Parquet + manifest di provenienza, verifica a campione superata).
+- Prossimo dataset: `incarichi-nominativi-shard` → relazioni persona→incarico→ente.
 
 ## Documentazione
 

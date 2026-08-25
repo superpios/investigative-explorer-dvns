@@ -1,0 +1,31 @@
+{
+  "dataset_id": "incarichi-nominativi-shard",
+  "api_endpoint": "https://www.dovevannoinostrisoldi.com/api/dati/incarichi-nominativi-shard",
+  "expected_headers": [
+    "ente",
+    "ipa",
+    "cf_ente",
+    "tipo",
+    "nominativo",
+    "cf_piva",
+    "oggetto",
+    "cig",
+    "importo_euro",
+    "data",
+    "fonte_url",
+    "note"
+  ],
+  "license_status": "not-declared",
+  "checked_at_source": "2026-08-23",
+  "declared_caveats": [
+    "I 54 file correnti sono istanze fisiche e possono sovrapporsi al dataset nominativi-incarichi; non sommare righe o importi senza riconciliazione."
+  ],
+  "matched_rows_declared": 39685,
+  "rows_downloaded": 39685,
+  "relations_written": 37624,
+  "rows_skipped_missing_nominativo_or_ente": 2061,
+  "acquisition_date": "2026-08-25",
+  "generated_at_utc": "2026-08-25T16:03:15+00:00",
+  "parquet_written": true,
+  "relation_type_emitted": "person_has_appointment"
+}
