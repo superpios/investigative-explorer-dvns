@@ -4,7 +4,9 @@ Come vengono costruiti i collegamenti tra entità. Il principio guida è: **ness
 
 ## Pipeline
 
+```
 dataset sorgente DVNS → extract → normalize → validate → data/relations/
+```
 
 1. **Estrazione** (`scripts/extract/`): ogni script legge un dataset sorgente e produce una tabella di relazione tipizzata (persona→incarico→ente, CIG→aggiudicatario, CUP→soggetto, ecc.). Gli script sono *fail-closed*: se lo schema del file di input cambia rispetto a quanto dichiarato, l'esecuzione si interrompe senza produrre output.
 2. **Normalizzazione** (`scripts/normalize/`): pulizia conservativa dei nomi (maiuscole/minuscole, spazi multipli, caratteri di controllo). Nessuna deduplicazione aggressiva: due nomi simili restano entità distinte.
