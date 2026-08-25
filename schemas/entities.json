@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Entità canoniche di Investigative Explorer",
+  "version": "0.1.0",
+  "description": "Registro delle classi di entità collegabili nel grafo. Ogni nodo del grafo appartiene a una di queste classi.",
+  "entities": [
+    {
+      "type": "person",
+      "description": "Persona fisica titolare di incarichi pubblici, ricavata dai dataset di incarichi nominativi.",
+      "key_fields": ["full_name_normalized", "role", "public_entity"],
+      "source_datasets": ["incarichi-nominativi-shard", "nominativi-incarichi"],
+      "notes": "Nessuna deduplicazione dei nomi: occorrenze omografe restano record distinti."
+    },
+    {
+      "type": "organization",
+      "description": "Società o fornitore privato aggiudicatario di affidamenti o contratti.",
+      "key_fields": ["name_normalized", "fiscal_code_if_present"],
+      "source_datasets": ["affidamenti-diretti", "cig-ministeri", "procurement-partecipate", "vincitori-cig"],
+      "notes": "Il codice fiscale viene registrato solo quando presente nella fonte."
+    },
+    {
+      "type": "public_entity",
+      "description": "Ente pubblico (ministero, comune, autorità, partecipata pubblica).",
+      "key_fields": ["ipa_code_if_present", "name_normalized"],
+      "source_datasets": ["indice-enti", "ipa_enti"],
+      "notes": "L'abbinamento preferenziale avviene tramite codice IPA."
+    },
+    {
+      "type": "cig",
+      "description": "Identificativo CIG di un contratto pubblico.",
+      "key_fields": ["cig_id", "awarding_entity", "amount_if_present"],
+      "source_datasets": ["cig-ministeri", "cig-autorita", "cig-aggiudicatari-extra"],
+      "notes": "Copertura parziale: vedi docs/LIMITI.md."
+    },
+    {
+      "type": "cup",
+      "description": "Codice unico di progetto di un intervento pubblico.",
+      "key_fields": ["cup_id", "subject", "status_if_present"],
+      "source_datasets": ["opencup-soggetti", "pnrr_asili"],
+      "notes": "opencup-soggetti è privo di fonti puntuali collegate: uso subordinato a verifica di copertura."
+    },
+    {
+      "type": "spending_chapter",
+      "description": "Capitolo di spesa o voce contabile.",
+      "key_fields": ["chapter_code", "year", "administration"],
+      "source_datasets": ["openbdap-capitoli-2024-2026", "capitoli-consulenze"],
+      "notes": "I capitoli appartengono al perimetro contabile della loro amministrazione e non si sommano tra perimetri diversi."
+    }
+  ]
+}
