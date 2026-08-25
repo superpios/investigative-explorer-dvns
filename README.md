@@ -16,7 +16,7 @@ Permette di partire da una persona, una società, un CIG, un CUP o un ente pubbl
 - Non stabilisce responsabilità, illeciti o sprechi: ogni risultato è formulato come «merita verifica».
 - Non somma né mescola perimetri contabili diversi (SIOPE, IRPEF, CPT, costi previsti e debiti restano separati).
 - Non inventa collegamenti assenti nei dati sorgente.
-- Non ridistribuisce il corpus DVNS al di fuori delle condizioni di riuso dichiarate: pubblica schemi, codice e procedure di riesecuzione.
+- Non ridistribuisce gli snapshot grezzi di DVNS. Pubblica invece le tabelle di relazione derivate (con provenienza riga-per-riga: hash SHA-256 sorgente e URL dell'atto originale) insieme agli script che le rigenerano dal corpus pubblico: chiunque può ricostruire tutto da zero e verificarlo.
 
 ## Stato del progetto
 
@@ -35,6 +35,20 @@ python src/server.py --port 8765          # poi apri http://127.0.0.1:8765
 ```
 
 Fasi completate: Fase 0 (struttura e metodo), Fase 1 (estrazione e normalizzazione).
+
+## Usalo sul tuo computer (redazioni e ricercatori)
+
+Nessuna registrazione, nessun dato inviato a server terzi: tutto gira in locale.
+
+```
+git clone https://github.com/superpios/investigative-explorer-dvns.git
+cd investigative-explorer-dvns
+pip install -r requirements.txt
+python scripts/build_search_index.py
+python src/server.py --port 8765
+```
+
+Poi apri `http://127.0.0.1:8765`. Per aggiornare i dati quando DVNS pubblica nuovi snapshot: rieseguire gli estrattori in `scripts/extract/` e poi `build_search_index.py`.
 
 ## Documentazione
 

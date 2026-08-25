@@ -10,23 +10,27 @@ Avvio: python src/server.py [--port 8765]
 """
 
 import argparse
+import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
+from fastapi.staticfiles import StaticFiles
 
 SRC_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SRC_DIR.resolve().parents[0]
 sys.path.insert(0, str(SRC_DIR))
 
-from query_engine import DEFAULT_LIMIT, MAX_LIMIT, connect, get_stats, search_edges  # noqa: E402
+from query_engine import DEFAULT_LIMIT, MAX_LIMIT, connect, format_results_csv, get_stats, search_edges  # noqa: E402
 
 
 DB_PATH = REPO_ROOT / "data" / "search" / "explorer.db"
 INDEX_PAGE = SRC_DIR / "static" / "index.html"
 
 app = FastAPI(title="Investigative Explorer", version="0.2.0")
+app.mount("/static", StaticFiles(directory=SRC_DIR / "static"), name="static")
 
 
 @app.get("/")
@@ -49,6 +53,38 @@ def api_search(
         raise HTTPException(status_code=400, detail=str(exc))
     finally:
         conn.close()
+
+
+@app.get("/api/export")
+def api_export(
+    q: str = Query(min_length=2, max_length=200),
+    relation_type: str = None,
+    limit: int = Query(MAX_LIMIT, ge=1, le=MAX_LIMIT),
+    fmt: str = Query("csv", pattern="^(csv|json)$"),
+):
+    if not DB_PATH.exists():
+        raise HTTPException(status_code=503, detail="indice assente: eseguire scripts/build_search_index.py")
+    conn = connect(DB_PATH)
+    try:
+        results = search_edges(conn, q, relation_type=relation_type, limit=limit)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    finally:
+        conn.close()
+
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    if fmt == "json":
+        payload = json.dumps({"query": q, "results": results}, ensure_ascii=False, indent=2)
+        return Response(
+            content=payload,
+            media_type="application/json",
+            headers={"Content-Disposition": 'attachment; filename="explorer_{}.json"'.format(stamp)},
+        )
+    return Response(
+        content=format_results_csv(results),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="explorer_{}.csv"'.format(stamp)},
+    )
 
 
 @app.get("/api/stats")

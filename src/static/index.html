@@ -16,14 +16,18 @@
   form.searchbar input[type=search]{ flex:2 1 280px; padding:10px 12px; font-size:1rem; border:1.5px solid var(--ink); }
   form.searchbar select{ flex:1 1 220px; padding:9px; border:1px solid var(--line); background:#fff; }
   form.searchbar button{ flex:0 0 auto; padding:10px 22px; background:var(--accent); color:#fff; border:none; font-size:1rem; cursor:pointer; }
-  form.searchbar button:hover{ filter:brightness(1.1); }
+  .toolbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:8px 0 10px; font-family:Arial,Helvetica,sans-serif; font-size:.85rem; }
+  .toolbar button, .toolbar select { padding:6px 12px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+  .toolbar button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .toolbar input[type=text]{ padding:6px 10px; border:1px solid var(--line); width:170px; }
+  .toolbar .spacer{flex:1;}
   #meta { font-size:.8rem; color:#666; font-family:Arial,Helvetica,sans-serif; min-height:1.2em; margin-bottom:10px; }
+  #graph { height:520px; border:1px solid var(--line); background:var(--soft); margin-bottom:12px; display:none; }
   .edge { border:1px solid var(--line); border-left:4px solid var(--accent); padding:10px 14px; margin:10px 0; background:var(--soft); }
   .edge .rel { font-family:Consolas,Menlo,monospace; font-size:.78rem; color:var(--accent); text-transform:uppercase; letter-spacing:.03em; }
   .edge .pair { font-size:1.05rem; margin:3px 0; }
-  .edge .pair b { font-weight:bold; }
   .edge .facts { font-size:.85rem; color:#444; font-family:Arial,Helvetica,sans-serif; }
-  .edge a { color:var(--accent); word-break:break-all; }
+  .edge a, .toolbar a { color:var(--accent); word-break:break-all; }
   .note { font-size:.75rem; color:#777; font-family:Arial,Helvetica,sans-serif; margin-top:4px; }
   footer.disclaimer { max-width:1100px; margin:30px auto 0; padding:12px 20px; border-top:1px solid var(--line); font-size:.78rem; color:#666; font-family:Arial,Helvetica,sans-serif; }
   footer.disclaimer a{color:var(--accent);}
@@ -49,25 +53,78 @@
     </select>
     <button type="submit">Cerca</button>
   </form>
+
+  <div class="toolbar">
+    <button type="button" id="btnGraph">Vista grafo</button>
+    <button type="button" id="btnCsv">Esporta CSV</button>
+    <button type="button" id="btnJson">Esporta JSON</button>
+    <span class="spacer"></span>
+    <input type="text" id="saveName" placeholder="nome ricerca">
+    <button type="button" id="btnSave" class="primary">Salva ricerca</button>
+    <select id="savedList"><option value="">Ricerche salvate…</option></select>
+    <button type="button" id="btnDelSaved" title="Elimina la ricerca selezionata">✕</button>
+  </div>
+
   <div id="meta"></div>
+  <div id="graph"></div>
   <div id="results"><div class="empty">I risultati compaiono qui. Ogni collegamento mostra fonte, periodo e link all'atto originale.</div></div>
 </main>
 <footer class="disclaimer">
   Strumento esterno indipendente costruito sul corpus pubblico di
   <a href="https://www.dovevannoinostrisoldi.com" target="_blank" rel="noopener">DoveVannoINostriSoldi</a>.
   Un collegamento nei dati non è una prova di responsabilità: ogni risultato è formulato come «merita verifica».
-  Perimetri contabili separati; nessuna accusa automatica. Elaborazione interamente locale.
+  Perimetri contabili separati; nessuna accusa automatica. Elaborazione interamente locale:
+  le ricerche salvate restano solo in questo browser.
 </footer>
+<script src="static/vendor/cytoscape.min.js"
+        onerror="window.__noGraph=true"></script>
 <script>
 (function(){
   var f=document.getElementById('f'),q=document.getElementById('q'),
-      t=document.getElementById('t'),meta=document.getElementById('meta'),out=document.getElementById('results');
+      t=document.getElementById('t'),meta=document.getElementById('meta'),out=document.getElementById('results'),
+      graphDiv=document.getElementById('graph'),
+      btnGraph=document.getElementById('btnGraph'),
+      btnSave=document.getElementById('btnSave'),saveName=document.getElementById('saveName'),
+      savedList=document.getElementById('savedList'),btnDel=document.getElementById('btnDelSaved');
+  var lastResults=[], lastQuery={q:'',type:''}, graphVisible=false, cy=null;
+  var LS_KEY='ie_saved_searches_v1';
+
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  /* ---- ricerche salvate: solo localStorage del browser ---- */
+  function loadSaved(){ try{return JSON.parse(localStorage.getItem(LS_KEY))||[];}catch(e){return [];} }
+  function persist(list){ try{localStorage.setItem(LS_KEY,JSON.stringify(list));}catch(e){} }
+  function refreshSaved(){
+    var list=loadSaved();
+    savedList.innerHTML='<option value="">Ricerche salvate…</option>'+list.map(function(s,i){
+      return '<option value="'+i+'">'+esc(s.name)+' — '+esc(s.q)+'</option>';
+    }).join('');
+  }
+  btnSave.addEventListener('click',function(){
+    var name=(saveName.value||'').trim()||('Ricerca '+new Date().toLocaleString('it-IT'));
+    if(lastQuery.q.length<2){meta.textContent='Esegui prima una ricerca.';return;}
+    var list=loadSaved();
+    list.unshift({name:name,q:lastQuery.q,type:lastQuery.type,ts:new Date().toISOString()});
+    persist(list.slice(0,50)); saveName.value=''; refreshSaved();
+    meta.textContent='Ricerca salvata in questo browser.';
+  });
+  savedList.addEventListener('change',function(){
+    var s=loadSaved()[parseInt(savedList.value,10)];
+    if(!s)return;
+    q.value=s.q; t.value=s.type||''; f.dispatchEvent(new Event('submit'));
+  });
+  btnDel.addEventListener('click',function(){
+    if(savedList.value==='')return;
+    var list=loadSaved(); list.splice(parseInt(savedList.value,10),1);
+    persist(list); refreshSaved();
+  });
+
+  /* ---- risultati ---- */
   function render(d){
-    var r=d.results||[];
-    meta.textContent=r.length+' risultati per «'+esc(d.query)+'»';
-    if(!r.length){out.innerHTML='<div class="empty">Nessun risultato nei dataset indicizzati.</div>';return;}
-    out.innerHTML=r.map(function(e){
+    lastResults=d.results||[];
+    meta.textContent=lastResults.length+' risultati per «'+esc(d.query)+'»';
+    if(!lastResults.length){out.innerHTML='<div class="empty">Nessun risultato nei dataset indicizzati.</div>';hideGraph();return;}
+    out.innerHTML=lastResults.map(function(e){
       var amount=e.amount_if_present?('Importo: '+esc(e.amount_if_present)+' € · '):'';
       var role=e.role?('Ruolo/oggetto: '+esc(e.role)+' · '):'';
       var link=e.fonte_url?(' · <a href="'+esc(e.fonte_url)+'" target="_blank" rel="noopener">atto originale ↗</a>'):'';
@@ -78,11 +135,13 @@
         +'<div class="note">Record sorgente: '+esc(e.source_record_id)+' · acquisito il '+esc(e.acquisition_date)+'</div>'
         +'</div>';
     }).join('');
+    if(graphVisible)drawGraph();
   }
   function run(ev){
-    ev.preventDefault();
+    if(ev)ev.preventDefault();
     var term=q.value.trim();
     if(term.length<2){meta.textContent='Digita almeno 2 caratteri.';return;}
+    lastQuery={q:term,type:t.value};
     meta.textContent='Ricerca in corso…';
     fetch('/api/search?q='+encodeURIComponent(term)+(t.value?'&relation_type='+encodeURIComponent(t.value):''))
       .then(function(res){ if(!res.ok){throw new Error('HTTP '+res.status);} return res.json(); })
@@ -90,6 +149,52 @@
       .catch(function(err){ meta.textContent='Errore: '+err.message; });
   }
   f.addEventListener('submit',run);
+
+  /* ---- export lato server (stessa query corrente) ---- */
+  function exportAs(fmt){
+    if(lastQuery.q.length<2){meta.textContent='Esegui prima una ricerca.';return;}
+    var url='/api/export?fmt='+fmt+'&q='+encodeURIComponent(lastQuery.q)+(lastQuery.type?'&relation_type='+encodeURIComponent(lastQuery.type):'');
+    window.open(url,'_blank');
+  }
+  document.getElementById('btnCsv').addEventListener('click',function(){exportAs('csv');});
+  document.getElementById('btnJson').addEventListener('click',function(){exportAs('json');});
+
+  /* ---- vista grafo (cytoscape venduto localmente, nessun CDN) ---- */
+  function nodeColor(type){
+    return type==='person'?'#0a5c44':type==='organization'?'#8a5a00':
+           type==='public_entity'?'#333333':'#7a0033';
+  }
+  function drawGraph(){
+    if(window.__noGraph||typeof cytoscape==='undefined'){
+      meta.textContent='Vista grafo non disponibile (libreria locale mancante).';return;
+    }
+    graphDiv.style.display='block';
+    var nodes={},edgesArr=[];
+    lastResults.slice(0,100).forEach(function(e,i){
+      nodes[e.subject_key]={id:'s'+i,data:{id:'s'+i,label:e.subject_key,color:nodeColor(e.subject_type)}};
+      nodes[e.object_key]=nodes[e.object_key]||{id:'o'+e.object_key,data:{id:'o'+e.object_key,label:e.object_key,color:nodeColor(e.object_type)}};
+      edgesArr.push({data:{id:'e'+i,source:nodes[e.subject_key].data.id,target:(nodes[e.object_key].data.id),label:e.relation_type.replace('_has_appointment',' inc.').replace('_awarded_direct_award',' aff.dir.')}});
+    });
+    var elements=Object.keys(nodes).map(function(k){return {group:'nodes',data:nodes[k].data};})
+      .concat(edgesArr.map(function(x){return {group:'edges',data:x.data};}));
+    if(cy){cy.destroy();}
+    cy=cytoscape({container:graphDiv,
+      elements:elements,
+      style:[
+        {selector:'node',style:{'background-color':'data(color)','label':'data(label)','font-size':'9px','width':18,'height':18,'color':'#222','text-valign':'bottom','text-margin-y':4}},
+        {selector:'edge',style:{'width':1,'line-color':'#9bb8ae','label':'data(label)','font-size':'7px','color':'#666','curve-style':'bezier','target-arrow-shape':'triangle','arrow-scale':.7}}
+      ],
+      layout:{name:'cose',animate:false,padding:20}});
+  }
+  function hideGraph(){graphDiv.style.display='none';}
+  btnGraph.addEventListener('click',function(){
+    graphVisible=!graphVisible;
+    btnGraph.textContent=graphVisible?'Vista elenco':'Vista grafo';
+    if(graphVisible){ if(!lastResults.length){meta.textContent='Esegui prima una ricerca.';graphVisible=false;btnGraph.textContent='Vista grafo';return;} drawGraph(); }
+    else hideGraph();
+  });
+
+  refreshSaved();
 })();
 </script>
 </body>

@@ -10,9 +10,27 @@ Sicurezza:
 - filtri ammessi solo da liste chiuse.
 """
 
+import csv
+import io
 import json
 import re
 import sqlite3
+
+EXPORT_COLUMNS = [
+    "relation_type", "subject_key", "object_key", "period",
+    "amount_if_present", "role", "source_dataset", "source_record_id",
+    "acquisition_date", "fonte_url",
+]
+
+
+def format_results_csv(results):
+    """Serializza i risultati in CSV (RFC 4180) per l'export delle redazioni."""
+    buffer = io.StringIO()
+    writer = csv.DictWriter(buffer, fieldnames=EXPORT_COLUMNS, extrasaction="ignore")
+    writer.writeheader()
+    for record in results:
+        writer.writerow({column: record.get(column, "") for column in EXPORT_COLUMNS})
+    return buffer.getvalue()
 
 
 ALLOWED_RELATION_TYPES = (
