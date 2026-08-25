@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "relation.schema.json",
+  "title": "Schema delle relazioni",
+  "description": "Contratto dati per le tabelle di relazione prodotte da Investigative Explorer e consumate dal Generator di piste investigative. Ogni riga di data/relations/ deve convalidare contro questo schema.",
+  "type": "object",
+  "required": [
+    "relation_type",
+    "subject_type",
+    "subject_key",
+    "object_type",
+    "object_key",
+    "source_dataset",
+    "source_record_id",
+    "period",
+    "acquisition_date",
+    "confidence_note"
+  ],
+  "properties": {
+    "relation_type": {
+      "type": "string",
+      "enum": [
+        "person_has_appointment",
+        "organization_awarded_cig",
+        "organization_awarded_direct_award",
+        "cup_has_subject",
+        "cig_linked_to_entity",
+        "entity_has_spending_chapter",
+        "contract_renewed"
+      ],
+      "description": "Tipo di relazione. L'elenco si estende solo con relazioni dimostrabili dai dati sorgente."
+    },
+    "subject_type": {
+      "type": "string",
+      "enum": ["person", "organization", "public_entity", "cig", "cup", "spending_chapter"]
+    },
+    "subject_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Chiave dell'entità soggetto, normalizzata secondo schemas/entities.json."
+    },
+    "object_type": {
+      "type": "string",
+      "enum": ["person", "organization", "public_entity", "cig", "cup", "spending_chapter"]
+    },
+    "object_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Chiave dell'entità oggetto."
+    },
+    "source_dataset": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "ID del dataset nel catalogo DVNS (es. incarichi-nominativi-shard)."
+    },
+    "source_record_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identificativo o hash del record originale nella fonte."
+    },
+    "period": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Periodo di riferimento del dato (es. 2025, 2024-H2, 2026-03)."
+    },
+    "acquisition_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data di acquisizione dello snapshot."
+    },
+    "amount_if_present": {
+      "type": ["number", "null"],
+      "description": "Importo quando dichiarato dalla fonte; mai stimato o ricostruito."
+    },
+    "confidence_note": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nota oggettiva su copertura e limiti della fonte per questo record."
+    }
+  },
+  "additionalProperties": true
+}
