@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investigative Explorer · DVNS</title>
+<style>
+  :root { --ink:#1a1a1a; --line:#d9d9d9; --soft:#f6f6f4; --accent:#0a5c44; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:Georgia,'Times New Roman',serif; color:var(--ink); background:#fff; line-height:1.45; }
+  header { border-bottom:3px solid var(--ink); padding:18px 20px 12px; max-width:1100px; margin:0 auto; }
+  header h1 { font-size:1.35rem; margin:0 0 2px; }
+  header p { margin:0; font-size:.85rem; color:#555; font-family:Arial,Helvetica,sans-serif; }
+  main { max-width:1100px; margin:0 auto; padding:16px 20px 60px; }
+  form.searchbar { display:flex; gap:8px; flex-wrap:wrap; margin:14px 0 6px; font-family:Arial,Helvetica,sans-serif; }
+  form.searchbar input[type=search]{ flex:2 1 280px; padding:10px 12px; font-size:1rem; border:1.5px solid var(--ink); }
+  form.searchbar select{ flex:1 1 220px; padding:9px; border:1px solid var(--line); background:#fff; }
+  form.searchbar button{ flex:0 0 auto; padding:10px 22px; background:var(--accent); color:#fff; border:none; font-size:1rem; cursor:pointer; }
+  form.searchbar button:hover{ filter:brightness(1.1); }
+  #meta { font-size:.8rem; color:#666; font-family:Arial,Helvetica,sans-serif; min-height:1.2em; margin-bottom:10px; }
+  .edge { border:1px solid var(--line); border-left:4px solid var(--accent); padding:10px 14px; margin:10px 0; background:var(--soft); }
+  .edge .rel { font-family:Consolas,Menlo,monospace; font-size:.78rem; color:var(--accent); text-transform:uppercase; letter-spacing:.03em; }
+  .edge .pair { font-size:1.05rem; margin:3px 0; }
+  .edge .pair b { font-weight:bold; }
+  .edge .facts { font-size:.85rem; color:#444; font-family:Arial,Helvetica,sans-serif; }
+  .edge a { color:var(--accent); word-break:break-all; }
+  .note { font-size:.75rem; color:#777; font-family:Arial,Helvetica,sans-serif; margin-top:4px; }
+  footer.disclaimer { max-width:1100px; margin:30px auto 0; padding:12px 20px; border-top:1px solid var(--line); font-size:.78rem; color:#666; font-family:Arial,Helvetica,sans-serif; }
+  footer.disclaimer a{color:var(--accent);}
+  .empty { padding:26px 0; color:#555; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Investigative Explorer · DVNS</h1>
+  <p>Ricerca relazionale sui dati pubblici della spesa pubblica italiana aggregati da DoveVannoINostriSoldi</p>
+</header>
+<main>
+  <form class="searchbar" id="f" autocomplete="off">
+    <input type="search" id="q" placeholder="Nome, CIG, ente… (min 2 caratteri)" aria-label="Ricerca">
+    <select id="t" aria-label="Tipo di relazione">
+      <option value="">Tutte le relazioni</option>
+      <option value="person_has_appointment">Incarichi a persone</option>
+      <option value="organization_has_appointment">Incarichi a società</option>
+      <option value="person_awarded_direct_award">Affidamenti diretti a persone</option>
+      <option value="organization_awarded_direct_award">Affidamenti diretti a società</option>
+      <option value="contract_renewed">Rinnovi e proroghe</option>
+      <option value="cig_linked_to_entity">CIG ↔ enti</option>
+    </select>
+    <button type="submit">Cerca</button>
+  </form>
+  <div id="meta"></div>
+  <div id="results"><div class="empty">I risultati compaiono qui. Ogni collegamento mostra fonte, periodo e link all'atto originale.</div></div>
+</main>
+<footer class="disclaimer">
+  Strumento esterno indipendente costruito sul corpus pubblico di
+  <a href="https://www.dovevannoinostrisoldi.com" target="_blank" rel="noopener">DoveVannoINostriSoldi</a>.
+  Un collegamento nei dati non è una prova di responsabilità: ogni risultato è formulato come «merita verifica».
+  Perimetri contabili separati; nessuna accusa automatica. Elaborazione interamente locale.
+</footer>
+<script>
+(function(){
+  var f=document.getElementById('f'),q=document.getElementById('q'),
+      t=document.getElementById('t'),meta=document.getElementById('meta'),out=document.getElementById('results');
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function render(d){
+    var r=d.results||[];
+    meta.textContent=r.length+' risultati per «'+esc(d.query)+'»';
+    if(!r.length){out.innerHTML='<div class="empty">Nessun risultato nei dataset indicizzati.</div>';return;}
+    out.innerHTML=r.map(function(e){
+      var amount=e.amount_if_present?('Importo: '+esc(e.amount_if_present)+' € · '):'';
+      var role=e.role?('Ruolo/oggetto: '+esc(e.role)+' · '):'';
+      var link=e.fonte_url?(' · <a href="'+esc(e.fonte_url)+'" target="_blank" rel="noopener">atto originale ↗</a>'):'';
+      return '<div class="edge">'
+        +'<div class="rel">'+esc(e.relation_type)+' — '+esc(e.source_dataset)+'</div>'
+        +'<div class="pair">'+esc(e.subject_key)+' &nbsp;→&nbsp; '+esc(e.object_key)+'</div>'
+        +'<div class="facts">'+amount+role+'Periodo: '+esc(e.period)+link+'</div>'
+        +'<div class="note">Record sorgente: '+esc(e.source_record_id)+' · acquisito il '+esc(e.acquisition_date)+'</div>'
+        +'</div>';
+    }).join('');
+  }
+  function run(ev){
+    ev.preventDefault();
+    var term=q.value.trim();
+    if(term.length<2){meta.textContent='Digita almeno 2 caratteri.';return;}
+    meta.textContent='Ricerca in corso…';
+    fetch('/api/search?q='+encodeURIComponent(term)+(t.value?'&relation_type='+encodeURIComponent(t.value):''))
+      .then(function(res){ if(!res.ok){throw new Error('HTTP '+res.status);} return res.json(); })
+      .then(render)
+      .catch(function(err){ meta.textContent='Errore: '+err.message; });
+  }
+  f.addEventListener('submit',run);
+})();
+</script>
+</body>
+</html>

@@ -9,5 +9,6 @@ venv/
 data/raw/*
 !data/raw/.gitkeep
 
+data/search/
 *.duckdb
 *.duckdb.wal

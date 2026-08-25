@@ -20,10 +20,21 @@ Permette di partire da una persona, una società, un CIG, un CUP o un ente pubbl
 
 ## Stato del progetto
 
-**Fase 1 in corso** — prime relazioni estratte dal corpus DVNS e pubblicate:
+**Fase 2 in corso — strumento interrogabile disponibile:**
 
-- `affidamenti-diretti`: 6.506 righe sorgente → **6.484 relazioni CIG→ente** in `data/relations/` (CSV + Parquet + manifest di provenienza, verifica a campione superata).
-- Prossimo dataset: `incarichi-nominativi-shard` → relazioni persona→incarico→ente.
+- **48.109 relazioni** indicizzate a testo pieno da 5 dataset DVNS (`incarichi-nominativi-shard`, `affidamenti-diretti`, `parti-atti`, `rinnovi-proroghe`).
+- Ricerca per nome, sigla ente o CIG; filtro per tipo di relazione; ogni risultato con periodo, importo quando dichiarato e link all'atto originale.
+- Server **solo locale** (127.0.0.1): i dati non escono dal computer; query parametrizzate; pagina senza risorse esterne.
+
+### Avvio rapido
+
+```
+pip install -r requirements.txt
+python scripts/build_search_index.py      # costruisce l'indice dai CSV in data/relations/
+python src/server.py --port 8765          # poi apri http://127.0.0.1:8765
+```
+
+Fasi completate: Fase 0 (struttura e metodo), Fase 1 (estrazione e normalizzazione).
 
 ## Documentazione
 
