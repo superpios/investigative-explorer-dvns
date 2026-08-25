@@ -16,6 +16,9 @@ Documento obbligatorio per l'uso responsabile dello strumento. Descrive ciò che
 - **Collegamenti CIG → aggiudicatario**: numericamente limitati (`vincitori-cig`: 120 righe; `cig-aggiudicatari-extra`: 2.391 righe). Il grafo degli appalti è quindi molto più sparso dell'intero BDNCP ANAC.
 - **`opencup-soggetti`**: 54.323 righe interrogabili ma prive di fonti puntuali collegate; da usare solo dopo verifica di copertura.
 - **`opencup-progetti-bulk`** (11,9 milioni di record): catalog-only, non interrogabile via API o MCP.
+- **Sovrapposizione `incarichi-nominativi-shard` / `nominativi-incarichi`**: dichiarata dallo stesso DVNS («le istanze fisiche possono sovrapporsi al dataset nominativi-incarichi»). Le righe e gli importi dei due dataset non si sommano mai senza riconciliazione esplicita; nel conteggio delle relazioni persona→incarico si usa un solo dataset alla volta, dichiarandolo.
+- **Copertura incompleta dichiarata su `affidamenti-diretti`**: importi, contraenti e precisione delle date hanno buchi segnalati dalla fonte; l'assenza di un campo (es. `contraente = n.d.`) non viene mai ricostruita per inferenza.
+- **Identificativi personali oscurati alla fonte**: DVNS sopprime i campi codice fiscale (`redaction: personal-identifier`); lo strumento non tenta alcuna de-anonimizzazione e lavora sui soli nominativi pubblicati negli atti.
 
 ## Trattamento delle persone
 
