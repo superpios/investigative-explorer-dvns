@@ -1,0 +1,33 @@
+{
+  "dataset_id": "parti-atti",
+  "expected_headers": [
+    "ente",
+    "ipa",
+    "tipo",
+    "chi_autorizzato",
+    "chi_ricevuto",
+    "cf",
+    "cig",
+    "data",
+    "fonte_url"
+  ],
+  "license_status": "not-declared",
+  "checked_at_source": "2026-08-23",
+  "declared_caveats": [
+    "Sono istanze fisiche di atti: lo stesso soggetto o atto può ricorrere e i conteggi non sono somme di spesa."
+  ],
+  "matched_rows_declared": 159493,
+  "rows_downloaded": 159493,
+  "last_source_row_scanned": 159493,
+  "relations_written": 1919,
+  "edges_by_type": {
+    "organization_has_appointment": 1546,
+    "person_has_appointment": 373
+  },
+  "skipped_unclassified_subjects": 155518,
+  "skipped_missing_fields": 2056,
+  "classification_reference": "docs/NORMALIZZAZIONE.md",
+  "acquisition_date": "2026-08-25",
+  "generated_at_utc": "2026-08-25T17:06:33+00:00",
+  "parquet_written": true
+}

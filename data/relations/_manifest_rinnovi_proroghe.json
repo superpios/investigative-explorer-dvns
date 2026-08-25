@@ -1,0 +1,37 @@
+{
+  "dataset_id": "rinnovi-proroghe",
+  "expected_headers": [
+    "id",
+    "priorita",
+    "ente",
+    "ipa",
+    "nome",
+    "n_atti",
+    "tipo",
+    "oggetto",
+    "importo_primo",
+    "importo_ultimo",
+    "importo_somma",
+    "importo_annuo",
+    "dal",
+    "al",
+    "periodi",
+    "url",
+    "fonte",
+    "note"
+  ],
+  "license_status": "not-declared",
+  "evidence_label": "needs-explanation",
+  "checked_at_source": "2026-08-23",
+  "declared_caveats": [
+    "Rinnovi, proroghe o più incarichi non provano irregolarità."
+  ],
+  "matched_rows_declared": 440,
+  "rows_downloaded": 440,
+  "relations_written": 440,
+  "rows_skipped_missing_nome_or_ente": 0,
+  "acquisition_date": "2026-08-25",
+  "generated_at_utc": "2026-08-25T16:27:28+00:00",
+  "parquet_written": true,
+  "relation_type_emitted": "contract_renewed"
+}
