@@ -22,6 +22,7 @@ MANDATORY_RELATION_FIELDS = [
 ]
 ALLOWED_RELATION_TYPES = {
     "person_has_appointment",
+    "person_awarded_direct_award",
     "organization_awarded_cig",
     "organization_awarded_direct_award",
     "cup_has_subject",
