@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investigative Explorer · demo pubblica · DVNS</title>
+<style>
+  :root { --ink:#1a1a1a; --line:#d9d9d9; --soft:#f6f6f4; --accent:#0a5c44; }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:Georgia,'Times New Roman',serif;color:var(--ink);background:#fff;line-height:1.45;}
+  header{border-bottom:3px solid var(--ink);padding:18px 20px 12px;max-width:1100px;margin:0 auto;}
+  header h1{font-size:1.35rem;margin:0 0 2px;}
+  header p{margin:0;font-size:.85rem;color:#555;font-family:Arial,Helvetica,sans-serif;}
+  main{max-width:1100px;margin:0 auto;padding:16px 20px 60px;}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 6px;font-family:Arial,Helvetica,sans-serif;}
+  .bar input[type=search]{flex:2 1 280px;padding:10px 12px;font-size:1rem;border:1.5px solid var(--ink);}
+  .bar select{flex:1 1 240px;padding:9px;border:1px solid var(--line);background:#fff;}
+  #meta{font-size:.8rem;color:#666;font-family:Arial,Helvetica,sans-serif;min-height:1.2em;margin-bottom:10px;}
+  .edge{border:1px solid var(--line);border-left:4px solid var(--accent);padding:10px 14px;margin:10px 0;background:var(--soft);}
+  .edge .rel{font-family:Consolas,Menlo,monospace;font-size:.78rem;color:var(--accent);text-transform:uppercase;letter-spacing:.03em;}
+  .edge .pair{font-size:1.05rem;margin:3px 0;}
+  .edge .facts{font-size:.85rem;color:#444;font-family:Arial,Helvetica,sans-serif;}
+  .edge a{color:var(--accent);word-break:break-all;}
+  .note{font-size:.75rem;color:#777;font-family:Arial,Helvetica,sans-serif;margin-top:4px;}
+  footer{max-width:1100px;margin:30px auto 0;padding:12px 20px;border-top:1px solid var(--line);font-size:.78rem;color:#666;font-family:Arial,Helvetica,sans-serif;}
+  footer a{color:var(--accent);}
+  .empty{padding:26px 0;color:#555;}
+  .badge{display:inline-block;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:0 8px;font-size:.72rem;font-family:Arial,sans-serif;color:#555;margin-left:6px;vertical-align:middle;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Investigative Explorer <span class="badge">demo pubblica statica</span></h1>
+  <p>Ricerca relazionale sui dati pubblici della spesa pubblica italiana aggregati da DoveVannoINostriSoldi</p>
+</header>
+<main>
+  <div class="bar">
+    <input type="search" id="q" placeholder="Nome, CIG, ente… (min 2 caratteri)" aria-label="Ricerca" autocomplete="off">
+    <select id="t" aria-label="Tipo di relazione"><option value="">Caricamento…</option></select>
+  </div>
+  <div id="meta">Caricamento dell'indice in corso (una volta sola, resta nella scheda)…</div>
+  <div id="results"><div class="empty">…</div></div>
+</main>
+<footer>
+  Demo statica di lettura: la ricerca avviene nel tuo browser su dati già pubblici nella
+  <a href="https://github.com/superpios/investigative-explorer-dvns" target="_blank" rel="noopener">repository del progetto</a>,
+  costruiti sul corpus di <a href="https://www.dovevannoinostrisoldi.com" target="_blank" rel="noopener">DoveVannoINostriSoldi</a>.
+  Nessun dato viene inviato a nessun server: non esiste nemmeno un backend.
+  Un collegamento nei dati non è una prova di responsabilità: ogni risultato è «merita verifica», con perimetri contabili separati.
+  Per ricerca avanzata, filtri completi, export e vista grafo: avvia lo strumento completo in locale seguendo il README della repository.
+</footer>
+<script>
+(function(){
+  var q=document.getElementById('q'),t=document.getElementById('t'),
+      meta=document.getElementById('meta'),out=document.getElementById('results');
+  var DATA=null,LABELS=[],TYPE_NAMES=[];
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  Promise.all([
+    fetch('data/edges.json').then(function(r){if(!r.ok)throw new Error('edges.json HTTP '+r.status);return r.json();}),
+    fetch('data/meta.json').then(function(r){return r.json();}).catch(function(){return {};})
+  ]).then(function(res){
+    DATA=res[0];
+    TYPE_NAMES=DATA.types;
+    t.innerHTML='<option value="">Tutte le relazioni ('+DATA.edges.length.toLocaleString('it-IT')+')</option>'
+      +DATA.types.map(function(name,i){
+        var n=DATA.edges.filter(function(e){return e[0]===i;}).length;
+        return '<option value="'+i+'">'+esc(name)+' ('+n+')</option>';
+      }).join('');
+    LABELS=DATA.edges.map(function(e){
+      return (e[1]+' '+e[2]+' '+e[5]).toLowerCase();
+    });
+    meta.textContent='Indice pronto: '+DATA.edges.length.toLocaleString('it-IT')+' relazioni. Digita almeno 2 caratteri.';
+    out.innerHTML='<div class="empty">I risultati compaiono qui, con fonte, periodo e link all\'atto originale.</div>';
+  }).catch(function(err){
+    meta.textContent='Errore nel caricamento dei dati: '+err.message;
+  });
+
+  function run(){
+    if(!DATA)return;
+    var term=q.value.trim().toLowerCase(), type=t.value;
+    if(term.length<2 && !type){meta.textContent='Digita almeno 2 caratteri o scegli un filtro.';out.innerHTML='';return;}
+    var tokens=term.length>=2?term.split(/\s+/):[];
+    var hits=[];
+    for(var i=0;i<LABELS.length;i++){
+      var e=DATA.edges[i];
+      if(type!==''&&String(e[0])!==type)continue;
+      var ok=true;
+      for(var k=0;k<tokens.length;k++){ if(LABELS[i].indexOf(tokens[k])===-1){ok=false;break;} }
+      if(ok){hits.push(i);if(hits.length>=400)break;}
+    }
+    meta.textContent=hits.length+' risultati'+(hits.length>=400?' (primi 400 mostrati — affina la ricerca)':'')+'.';
+    if(!hits.length){out.innerHTML='<div class="empty">Nessun risultato.</div>';return;}
+    out.innerHTML=hits.map(function(i){
+      var e=DATA.edges[i];
+      var amount=e[4]?('Importo: '+esc(e[4])+' € · '):'';
+      var role=e[5]?('Oggetto/ruolo: '+esc(e[5])+' · '):'';
+      var url=e[8]>=0?('<a href="'+esc(DATA.urls[e[8]])+'" target="_blank" rel="noopener">atto originale ↗</a>'):'';
+      return '<div class="edge">'
+        +'<div class="rel">'+esc(TYPE_NAMES[e[0]])+' — '+esc(DATA.datasets[e[6]])+'</div>'
+        +'<div class="pair">'+esc(e[1])+' &nbsp;→&nbsp; '+esc(e[2])+'</div>'
+        +'<div class="facts">'+amount+role+'Periodo: '+esc(e[3])+(url?(' · '+url):'')+'</div>'
+        +'<div class="note">Record sorgente: '+esc(e[7])+'</div>'
+        +'</div>';
+    }).join('');
+  }
+  q.addEventListener('input',run);
+  t.addEventListener('change',run);
+})();
+</script>
+</body>
+</html>
