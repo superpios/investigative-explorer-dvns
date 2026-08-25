@@ -1,0 +1,10 @@
+{
+  "generated_at_utc": "2026-08-25T18:46:50+00:00",
+  "total_edges": 48109,
+  "datasets": {
+    "incarichi-nominativi-shard": 37624,
+    "affidamenti-diretti": 8126,
+    "parti-atti": 1919,
+    "rinnovi-proroghe": 440
+  }
+}
