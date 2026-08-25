@@ -4,6 +4,8 @@ Strumento di ricerca e navigazione relazionale sui dati della spesa pubblica ita
 
 Permette di partire da una persona, una società, un CIG, un CUP o un ente pubblico e ricostruire i collegamenti documentati nei dati pubblici, ciascuno corredato di fonte, periodo di riferimento, data di acquisizione e limiti dichiarati.
 
+**Demo pubblica (sola lettura, senza registrazioni): https://superpios.github.io/investigative-explorer-dvns/**
+
 ## Cosa fa
 
 - Ricerca unificata su nomi, CIG, CUP ed enti nei dataset pubblici integrati da DVNS.
@@ -20,11 +22,10 @@ Permette di partire da una persona, una società, un CIG, un CUP o un ente pubbl
 
 ## Stato del progetto
 
-**Fase 2 in corso — strumento interrogabile disponibile:**
+**Fase 2 completata — due modi per usarlo:**
 
-- **48.109 relazioni** indicizzate a testo pieno da 5 dataset DVNS (`incarichi-nominativi-shard`, `affidamenti-diretti`, `parti-atti`, `rinnovi-proroghe`).
-- Ricerca per nome, sigla ente o CIG; filtro per tipo di relazione; ogni risultato con periodo, importo quando dichiarato e link all'atto originale.
-- Server **solo locale** (127.0.0.1): i dati non escono dal computer; query parametrizzate; pagina senza risorse esterne.
+- **Demo pubblica statica**: apertura immediata nel browser, ricerca su 48.109 relazioni, nessun backend e nessun dato inviato a server.
+- **Strumento completo in locale**: filtri per tipo di relazione, export CSV/JSON delle sessioni, ricerche salvate nel browser, vista grafo interattiva — tutto elaborato sul proprio computer.
 
 ### Avvio rapido
 
@@ -34,7 +35,7 @@ python scripts/build_search_index.py      # costruisce l'indice dai CSV in data/
 python src/server.py --port 8765          # poi apri http://127.0.0.1:8765
 ```
 
-Fasi completate: Fase 0 (struttura e metodo), Fase 1 (estrazione e normalizzazione).
+Fasi completate: Fase 0 (struttura e metodo), Fase 1 (estrazione e normalizzazione), Fase 2 (motore di ricerca, interfaccia, demo pubblica).
 
 ## Usalo sul tuo computer (redazioni e ricercatori)
 
@@ -70,8 +71,9 @@ scripts/
   extract/          estrazione relazioni dai dataset sorgente
   normalize/        pulizia leggera dei nomi e dei campi
   validate/         controlli di integrità e provenienza
+demo/               sito statico pubblico (ricerca nel browser, GitHub Pages)
 schemas/            entità canoniche e schemi delle relazioni
-src/                backend di consultazione (fase successiva)
+src/                motore di ricerca e server locale (FastAPI + SQLite FTS5)
 tests/              controlli automatici
 ```
 
