@@ -30,8 +30,8 @@
   "rows_downloaded": 440,
   "relations_written": 440,
   "rows_skipped_missing_nome_or_ente": 0,
-  "acquisition_date": "2026-08-25",
-  "generated_at_utc": "2026-08-25T16:27:28+00:00",
+  "acquisition_date": "2026-09-02",
+  "generated_at_utc": "2026-09-02T17:18:33+00:00",
   "parquet_written": true,
   "relation_type_emitted": "contract_renewed"
 }
