@@ -1,18 +1,17 @@
 {
   "dataset_id": "affidamenti-diretti",
-  "input_file": "data\\processed\\affidamenti_diretti_raw.csv",
-  "rows_input": 6506,
-  "distinct_contraenti": 1816,
-  "class_person_occurrences": 171,
-  "class_organization_occurrences": 1471,
-  "class_unclassified_occurrences": 4864,
-  "edges_written": 1642,
+  "input_file": "data/processed/affidamenti_diretti_raw.csv",
+  "rows_input": 30,
+  "distinct_contraenti": 7,
+  "class_person_occurrences": 5,
+  "class_organization_occurrences": 0,
+  "class_unclassified_occurrences": 25,
+  "edges_written": 5,
   "edges_by_type": {
-    "person_awarded_direct_award": 171,
-    "organization_awarded_direct_award": 1471
+    "person_awarded_direct_award": 5
   },
   "rules_reference": "scripts/normalize/classification_rules.py + docs/NORMALIZZAZIONE.md",
   "acquisition_date_source_data": true,
-  "generated_at_utc": "2026-08-25T16:18:24+00:00",
+  "generated_at_utc": "2026-09-02T16:55:49+00:00",
   "parquet_written": true
 }

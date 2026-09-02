@@ -18,11 +18,11 @@
     "Importi, contraenti, atti puntuali e precisione delle date hanno copertura incompleta."
   ],
   "matched_rows_declared": 6506,
-  "rows_downloaded": 6506,
-  "relations_written": 6484,
-  "rows_skipped_missing_cig_or_ente": 22,
-  "acquisition_date": "2026-08-25",
-  "generated_at_utc": "2026-08-25T15:43:10+00:00",
+  "rows_downloaded": 30,
+  "relations_written": 30,
+  "rows_skipped_missing_cig_or_ente": 0,
+  "acquisition_date": "2026-09-02",
+  "generated_at_utc": "2026-09-02T16:55:47+00:00",
   "parquet_written": true,
   "relation_type_emitted": "cig_linked_to_entity",
   "contraente_edge_deferred": "classificazione persona/organizzazione rimandata alla fase normalize"

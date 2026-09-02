@@ -21,11 +21,11 @@
     "I 54 file correnti sono istanze fisiche e possono sovrapporsi al dataset nominativi-incarichi; non sommare righe o importi senza riconciliazione."
   ],
   "matched_rows_declared": 39685,
-  "rows_downloaded": 39685,
-  "relations_written": 37624,
-  "rows_skipped_missing_nominativo_or_ente": 2061,
-  "acquisition_date": "2026-08-25",
-  "generated_at_utc": "2026-08-25T16:03:15+00:00",
+  "rows_downloaded": 30,
+  "relations_written": 26,
+  "rows_skipped_missing_nominativo_or_ente": 4,
+  "acquisition_date": "2026-09-02",
+  "generated_at_utc": "2026-09-02T16:55:49+00:00",
   "parquet_written": true,
   "relation_type_emitted": "person_has_appointment"
 }

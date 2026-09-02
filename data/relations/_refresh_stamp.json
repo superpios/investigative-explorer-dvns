@@ -1,0 +1,17 @@
+{
+  "generated_at_utc": "2026-09-02T16:55:50+00:00",
+  "required_files": {
+    "awards__affidamenti_diretti.csv": {
+      "exists": true,
+      "bytes": 2520
+    },
+    "cig_ente__affidamenti_diretti.csv": {
+      "exists": true,
+      "bytes": 11479
+    },
+    "persona_incarico_ente__incarichi_nominativi_shard.csv": {
+      "exists": true,
+      "bytes": 19381
+    }
+  }
+}
