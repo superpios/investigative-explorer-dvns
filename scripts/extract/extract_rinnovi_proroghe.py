@@ -124,8 +124,14 @@ def write_parquet(path, records):
         import pandas as pd
     except ImportError:
         return False
-    pd.DataFrame(records, columns=RELATION_COLUMNS).to_parquet(path, index=False)
-    return True
+    try:
+        frame = pd.DataFrame(records)
+        frame.to_parquet(path, index=False)
+        return True
+    except Exception as exc:
+        print("avviso: parquet non scritto ({}): {}".format(path, exc))
+        return False
+
 
 
 def main():
