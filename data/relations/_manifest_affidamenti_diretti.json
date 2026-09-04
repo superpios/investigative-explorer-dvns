@@ -21,8 +21,8 @@
   "rows_downloaded": 6506,
   "relations_written": 6484,
   "rows_skipped_missing_cig_or_ente": 22,
-  "acquisition_date": "2026-09-03",
-  "generated_at_utc": "2026-09-03T05:30:05+00:00",
+  "acquisition_date": "2026-09-04",
+  "generated_at_utc": "2026-09-04T05:32:52+00:00",
   "parquet_written": true,
   "relation_type_emitted": "cig_linked_to_entity",
   "contraente_edge_deferred": "classificazione persona/organizzazione rimandata alla fase normalize"
