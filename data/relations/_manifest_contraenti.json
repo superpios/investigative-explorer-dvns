@@ -13,6 +13,6 @@
   },
   "rules_reference": "scripts/normalize/classification_rules.py + docs/NORMALIZZAZIONE.md",
   "acquisition_date_source_data": true,
-  "generated_at_utc": "2026-09-20T05:54:03+00:00",
+  "generated_at_utc": "2026-09-21T06:03:44+00:00",
   "parquet_written": true
 }
