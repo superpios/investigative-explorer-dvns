@@ -24,8 +24,8 @@
   "rows_downloaded": 39685,
   "relations_written": 37624,
   "rows_skipped_missing_nominativo_or_ente": 2061,
-  "acquisition_date": "2026-11-09",
-  "generated_at_utc": "2026-11-09T07:49:31+00:00",
+  "acquisition_date": "2026-11-10",
+  "generated_at_utc": "2026-11-10T08:15:26+00:00",
   "parquet_written": true,
   "relation_type_emitted": "person_has_appointment"
 }
